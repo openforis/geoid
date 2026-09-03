@@ -1,0 +1,23 @@
+# Keep the build context (and image) lean. migrations/ + alembic.ini are KEPT
+# (needed by `geoid migrate`); src/ is the package.
+.git
+.gitignore
+.github
+.venv
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.coverage
+coverage.xml
+htmlcov
+tests
+_blobstore
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea
+.vscode

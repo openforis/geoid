@@ -1,0 +1,1039 @@
+{
+  "recipe_version": "v2",
+  "generated_by": "scripts/dedup_vectors.py --generate \u2014 pure-Python reference (geoid.domain.geometry_identity), engine-independent (ADR-007)",
+  "vectors": [
+    {
+      "name": "baseline_unit_square",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "wkt": "POLYGON((0 0,1 0,1 1,0 1,0 0))",
+      "expect": "hash",
+      "sha256": "169dc6c3af8c30d4a0b3436d1bbbde865626ff1d7e48195b14fcf563dc4663c1",
+      "same_as": null,
+      "note": "canonical CCW unit square on the 1e-7 lattice (~1cm/vertex); the paired wkt pins WKT->GeoJSON codec convergence onto the same digest"
+    },
+    {
+      "name": "ring_start_rotation",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "169dc6c3af8c30d4a0b3436d1bbbde865626ff1d7e48195b14fcf563dc4663c1",
+      "same_as": "baseline_unit_square",
+      "note": "same ring, different start vertex \u2014 min-vertex rotation collapses it"
+    },
+    {
+      "name": "cw_winding",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "169dc6c3af8c30d4a0b3436d1bbbde865626ff1d7e48195b14fcf563dc4663c1",
+      "same_as": "baseline_unit_square",
+      "note": "same ring, clockwise winding \u2014 CCW orientation collapses it"
+    },
+    {
+      "name": "hole_order_canonical",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              10,
+              0
+            ],
+            [
+              10,
+              10
+            ],
+            [
+              0,
+              10
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              2,
+              2
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              2
+            ]
+          ],
+          [
+            [
+              6,
+              6
+            ],
+            [
+              7,
+              6
+            ],
+            [
+              7,
+              7
+            ],
+            [
+              6,
+              7
+            ],
+            [
+              6,
+              6
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "19be546faf3979681639e887b7a20a13f12ce484f1c3ffdfc0c7bbb011d6b77f",
+      "same_as": null,
+      "note": "two-hole polygon"
+    },
+    {
+      "name": "hole_order_swapped",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              10,
+              0
+            ],
+            [
+              10,
+              10
+            ],
+            [
+              0,
+              10
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              6,
+              6
+            ],
+            [
+              7,
+              6
+            ],
+            [
+              7,
+              7
+            ],
+            [
+              6,
+              7
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          [
+            [
+              2,
+              2
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              2,
+              2
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "19be546faf3979681639e887b7a20a13f12ce484f1c3ffdfc0c7bbb011d6b77f",
+      "same_as": "hole_order_canonical",
+      "note": "holes listed in the other order \u2014 canonical-bytes hole sort collapses it"
+    },
+    {
+      "name": "multipart_order_canonical",
+      "geojson": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          ],
+          [
+            [
+              [
+                5,
+                5
+              ],
+              [
+                6,
+                5
+              ],
+              [
+                6,
+                6
+              ],
+              [
+                5,
+                6
+              ],
+              [
+                5,
+                5
+              ]
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "b90f0089eed919784e13c54d2ee6707a55cba7449a065d71e9b039e63af2ae63",
+      "same_as": null,
+      "note": "two-part multipolygon"
+    },
+    {
+      "name": "multipart_order_swapped",
+      "geojson": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                5,
+                5
+              ],
+              [
+                6,
+                5
+              ],
+              [
+                6,
+                6
+              ],
+              [
+                5,
+                6
+              ],
+              [
+                5,
+                5
+              ]
+            ]
+          ],
+          [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "b90f0089eed919784e13c54d2ee6707a55cba7449a065d71e9b039e63af2ae63",
+      "same_as": "multipart_order_canonical",
+      "note": "parts listed in the other order \u2014 canonical-bytes part sort collapses it"
+    },
+    {
+      "name": "subgrid_jitter",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1e-08,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1e-08,
+              0
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "169dc6c3af8c30d4a0b3436d1bbbde865626ff1d7e48195b14fcf563dc4663c1",
+      "same_as": "baseline_unit_square",
+      "note": "1e-8 jitter, below the 1e-7 lattice \u2014 quantization absorbs it"
+    },
+    {
+      "name": "consecutive_duplicate_vertex",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "169dc6c3af8c30d4a0b3436d1bbbde865626ff1d7e48195b14fcf563dc4663c1",
+      "same_as": "baseline_unit_square",
+      "note": "doubled vertex \u2014 coincident lattice runs collapse (a repeated vertex carries zero shape information at the identity precision)"
+    },
+    {
+      "name": "wraparound_duplicate",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "169dc6c3af8c30d4a0b3436d1bbbde865626ff1d7e48195b14fcf563dc4663c1",
+      "same_as": "baseline_unit_square",
+      "note": "duplicate run straddling the ring closure \u2014 the cyclic wrap-around trim catches what a forward-only pass would miss"
+    },
+    {
+      "name": "collinear_extra_vertex",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              0.5,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "bd1cf8926633ca22e9a6472688b366731380de0b0a17499258d08b29e3d5866a",
+      "same_as": null,
+      "note": "baseline square plus a collinear midpoint vertex \u2014 deliberately its OWN digest: the recipe never simplifies, so an inserted vertex is detectable"
+    },
+    {
+      "name": "supragrid_shift",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0.001,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0.001,
+              0
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "dfa11094482eaefe5b953dbd4a8e353af216674a225273328a733165d1957545",
+      "same_as": null,
+      "note": "0.001-degree shift, far above the lattice \u2014 a different place, own digest"
+    },
+    {
+      "name": "cell_straddle_low",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              20.00000004,
+              20
+            ],
+            [
+              21,
+              20
+            ],
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              21
+            ],
+            [
+              20.00000004,
+              20
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "6f6d67cf73e794f3a78f54289919f3624ab60c9f28de49c6fea0246e289c38ee",
+      "same_as": null,
+      "note": "x = 20 + 0.4 cells, quantizes DOWN \u2014 with cell_straddle_high this pins the known cell-boundary caveat (the lattice is absolute, not a radius). Strict under v2: the rounding is ours, no GEOS build involved."
+    },
+    {
+      "name": "cell_straddle_high",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              20.00000006,
+              20
+            ],
+            [
+              21,
+              20
+            ],
+            [
+              21,
+              21
+            ],
+            [
+              20,
+              21
+            ],
+            [
+              20.00000006,
+              20
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "5e9216458830a79f747b4e55e3e40c3e6e1939a8b2255f437969f17294de452b",
+      "same_as": null,
+      "note": "x = 20 + 0.6 cells, quantizes UP \u2014 differs from cell_straddle_low though the inputs are 2e-8 apart. Was GEOS-build-sensitive (advisory) under v1; strict and engine-independent under v2."
+    },
+    {
+      "name": "negative_coords",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -10,
+              -10
+            ],
+            [
+              -9,
+              -10
+            ],
+            [
+              -9,
+              -9
+            ],
+            [
+              -10,
+              -9
+            ],
+            [
+              -10,
+              -10
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "e32808bc4326368a2cbd6f8b56f55018d431d08d5f148f67c1b382bb893e7d4b",
+      "same_as": null,
+      "note": "negative coordinates (western/southern hemispheres) \u2014 pins the signed big-endian int8 serialization"
+    },
+    {
+      "name": "negative_zero",
+      "geojson": {
+        "type": "Point",
+        "coordinates": [
+          -0.0,
+          0.0
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "ef8921bd776774df5977cc35fcce4be69b0a127d80cd73b2a7994441c889ce21",
+      "same_as": "point_origin",
+      "note": "IEEE -0.0 input \u2014 the integer lattice has no -0 by construction"
+    },
+    {
+      "name": "high_precision_floats",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              12.3456789012345,
+              -45.6789012345678
+            ],
+            [
+              13.3456789012345,
+              -45.6789012345678
+            ],
+            [
+              13.3456789012345,
+              -44.6789012345678
+            ],
+            [
+              12.3456789012345,
+              -44.6789012345678
+            ],
+            [
+              12.3456789012345,
+              -45.6789012345678
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "007e6b061ca1630764aaad0935868d2f6a464973bb87f8b6713e2b6696202655",
+      "same_as": null,
+      "note": "15-significant-figure coordinates \u2014 exercises correctly-rounded number parsing (json-c strtod vs Python json) landing on the same doubles"
+    },
+    {
+      "name": "world_extent",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -180,
+              -90
+            ],
+            [
+              180,
+              -90
+            ],
+            [
+              180,
+              90
+            ],
+            [
+              -180,
+              90
+            ],
+            [
+              -180,
+              -90
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "3000e8bb3dc3926ecbc8a0a1540def2d58406721063eea0c20aa61d91e3b5bba",
+      "same_as": null,
+      "note": "whole-world polygon: 2x its lattice area exceeds int64 max \u2014 pins the exact (numeric / Python int) shoelace accumulation"
+    },
+    {
+      "name": "point_origin",
+      "geojson": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          0
+        ]
+      },
+      "wkt": "POINT(0 0)",
+      "expect": "hash",
+      "sha256": "ef8921bd776774df5977cc35fcce4be69b0a127d80cd73b2a7994441c889ce21",
+      "same_as": null,
+      "note": "canonical point at the origin \u2014 the Point analogue of baseline_unit_square"
+    },
+    {
+      "name": "point_subgrid_jitter",
+      "geojson": {
+        "type": "Point",
+        "coordinates": [
+          1e-08,
+          0
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "ef8921bd776774df5977cc35fcce4be69b0a127d80cd73b2a7994441c889ce21",
+      "same_as": "point_origin",
+      "note": "1e-8 jitter, below the lattice \u2014 absorbed exactly as for a polygon vertex"
+    },
+    {
+      "name": "tie_half_cell_x",
+      "geojson": {
+        "type": "Point",
+        "coordinates": [
+          5e-08,
+          0
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "ef8921bd776774df5977cc35fcce4be69b0a127d80cd73b2a7994441c889ce21",
+      "same_as": "point_origin",
+      "note": "x*1e7 is EXACTLY 0.5 after the one IEEE multiply \u2014 half-even rounds to 0 (not up to 1): the frozen tie rule"
+    },
+    {
+      "name": "tie_half_cell_negative_y",
+      "geojson": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          -5e-08
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "ef8921bd776774df5977cc35fcce4be69b0a127d80cd73b2a7994441c889ce21",
+      "same_as": "point_origin",
+      "note": "y*1e7 is EXACTLY -0.5 \u2014 half-even rounds to 0 (not away to -1)"
+    },
+    {
+      "name": "point_two_cells",
+      "geojson": {
+        "type": "Point",
+        "coordinates": [
+          2e-07,
+          0
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "027317404b4358288880b7c16dd78f16ca0a591d44d488c65e3df698b55b83eb",
+      "same_as": null,
+      "note": "x on lattice index 2 \u2014 the collapse target for tie_even_up"
+    },
+    {
+      "name": "tie_even_up",
+      "geojson": {
+        "type": "Point",
+        "coordinates": [
+          1.5e-07,
+          0
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "027317404b4358288880b7c16dd78f16ca0a591d44d488c65e3df698b55b83eb",
+      "same_as": "point_two_cells",
+      "note": "x*1e7 is EXACTLY 1.5 \u2014 half-even rounds UP to 2 (the even neighbour)"
+    },
+    {
+      "name": "multipoint_canonical",
+      "geojson": {
+        "type": "MultiPoint",
+        "coordinates": [
+          [
+            0,
+            0
+          ],
+          [
+            5,
+            5
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "f387ff7f08b6fd12d85617ee8e8cbd5352e5297a4e78c1fd445e2c87967e664d",
+      "same_as": null,
+      "note": "two-point multipoint"
+    },
+    {
+      "name": "multipoint_order_swapped",
+      "geojson": {
+        "type": "MultiPoint",
+        "coordinates": [
+          [
+            5,
+            5
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "f387ff7f08b6fd12d85617ee8e8cbd5352e5297a4e78c1fd445e2c87967e664d",
+      "same_as": "multipoint_canonical",
+      "note": "members in the other order \u2014 the (x, y) member sort collapses it"
+    },
+    {
+      "name": "multipoint_single",
+      "geojson": {
+        "type": "MultiPoint",
+        "coordinates": [
+          [
+            0,
+            0
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "7bda9b69378a5b69b46b882cd47053602447c1b2f3c0a8132e9b54be639f0c99",
+      "same_as": null,
+      "note": "one-member multipoint \u2014 distinct from multipoint_duplicate_members (duplicates are KEPT) and from point_origin (type tag differs)"
+    },
+    {
+      "name": "multipoint_duplicate_members",
+      "geojson": {
+        "type": "MultiPoint",
+        "coordinates": [
+          [
+            0,
+            0
+          ],
+          [
+            1e-08,
+            0
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "hash",
+      "sha256": "448ca28d1fe7518378772dbbc1b71fcb269665670f03be475aab9602a7dcd483",
+      "same_as": null,
+      "note": "two members on the SAME lattice point \u2014 kept as two (no silent merge), so this digest differs from multipoint_single"
+    },
+    {
+      "name": "degenerate_sliver",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1e-08
+            ],
+            [
+              0,
+              1e-08
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "error",
+      "sha256": null,
+      "same_as": null,
+      "note": "sub-cell sliver: collapses to 2 lattice vertices. v1 MakeValid/ReducePrecision silently emptied such slivers (a silent identity merge); v2 rejects (SQL: GD001, Python: DegenerateGeometryError, API: 422)"
+    },
+    {
+      "name": "degenerate_collinear",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              1e-08
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "error",
+      "sha256": null,
+      "same_as": null,
+      "note": "collapses to three collinear lattice vertices \u2014 exact-zero shoelace"
+    },
+    {
+      "name": "degenerate_bowtie",
+      "geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "wkt": null,
+      "expect": "error",
+      "sha256": null,
+      "same_as": null,
+      "note": "self-intersecting bowtie (v1's bowtie_makevalid reborn): its exact integer shoelace is zero \u2014 v2 refuses what v1 silently repaired/vanished"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "GH-COCOA-001",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-1.500, 6.500], [-1.495, 6.500], [-1.495, 6.505], [-1.500, 6.505], [-1.500, 6.500]]]
+      },
+      "properties": {
+        "commodity": "cocoa",
+        "area_ha": 2.3,
+        "country": "GH",
+        "_whisp": { "version": "2.1.0", "risk": "low", "run_id": "whisp-2026-06-01-aa" }
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "GH-COCOA-002",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-1.490, 6.500], [-1.485, 6.500], [-1.485, 6.505], [-1.490, 6.505], [-1.490, 6.500]]]
+      },
+      "properties": {
+        "commodity": "cocoa",
+        "area_ha": 1.8,
+        "country": "GH",
+        "_whisp": { "version": "2.1.0", "risk": "low", "run_id": "whisp-2026-06-01-ab" }
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "CI-COCOA-ESTATE-003",
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [[[-5.000, 5.500], [-4.995, 5.500], [-4.995, 5.505], [-5.000, 5.505], [-5.000, 5.500]]],
+          [[[-4.990, 5.500], [-4.985, 5.500], [-4.985, 5.505], [-4.990, 5.505], [-4.990, 5.500]]]
+        ]
+      },
+      "properties": {
+        "commodity": "cocoa",
+        "area_ha": 5.1,
+        "country": "CI",
+        "note": "two-parcel estate",
+        "_whisp": { "version": "2.1.0", "risk": "more_info_needed" }
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "BR-SOY-004",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-55.000, -10.000], [-54.990, -10.000], [-54.990, -9.990], [-55.000, -9.990], [-55.000, -10.000]]]
+      },
+      "properties": {
+        "commodity": "soy",
+        "area_ha": 110.0,
+        "country": "BR",
+        "_whisp": { "version": "2.1.0", "risk": "high" }
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "ID-PALM-005",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[117.000, 0.500], [117.010, 0.500], [117.010, 0.510], [117.000, 0.510], [117.000, 0.500]]]
+      },
+      "properties": {
+        "commodity": "palm_oil",
+        "area_ha": 12.4,
+        "country": "ID",
+        "_whisp": { "version": "2.1.0", "risk": "low" }
+      }
+    }
+  ]
+}

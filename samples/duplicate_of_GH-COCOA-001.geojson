@@ -1,0 +1,10 @@
+{
+  "type": "Feature",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[[-1.500, 6.500], [-1.500, 6.505], [-1.495, 6.505], [-1.495, 6.500], [-1.500, 6.500]]]
+  },
+  "properties": {
+    "note": "SAME geometry as GH-COCOA-001 but reversed winding + no id — must re-mint the same geoid (HTTP 201)."
+  }
+}

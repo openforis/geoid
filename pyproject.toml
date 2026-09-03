@@ -1,0 +1,102 @@
+[project]
+name = "geoid"
+version = "0.10.2"
+description = "GeoID — global federated registry minting immutable, secure identifiers for geospatial places (OGC API Features over PostGIS)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "FAO GeoID Team" }]
+keywords = ["geospatial", "ogc", "postgis", "registry", "fao"]
+
+dependencies = [
+    # Web framework + server
+    "fastapi>=0.115,<1.0",
+    "uvicorn[standard]>=0.32",
+    # Async DB stack
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30",
+    "geoalchemy2>=0.16",
+    "alembic>=1.14",
+    # GeoJSON + validation
+    "geojson-pydantic>=2.1,<2.2",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    # Geometry (WKT vendor-extension codec)
+    "shapely>=2.0",
+]
+
+[project.optional-dependencies]
+# OIDC resource-server auth (Keycloak / FAO IdP). PyJWT is the smallest battle-tested
+# fit: jwt.decode(algorithms=["RS256"]) rejects none / alg-confusion and validates
+# iss/aud/exp/nbf with leeway, and PyJWKClient gives an in-process JWKS-by-kid cache.
+# Imported lazily inside auth/oidc.py + deps.py so an image built WITHOUT this extra
+# still imports cleanly, but Keycloak is the ONLY auth path — REQUIRED for any
+# authenticated deployment (Dockerfile `uv sync --extra oidc`).
+oidc = ["pyjwt[crypto]>=2.10"]
+# Operational tooling baked into the deployed image: scripts/dedup_vectors.py runs
+# as a post-deploy Cloud Run job (the golden-vector identity canary) and needs the
+# sync psycopg driver, which is otherwise dev-only. Installed via the Dockerfile's
+# `uv sync --extra ops`.
+ops = ["psycopg[binary]>=3.2"]
+
+[project.scripts]
+geoid = "geoid.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "anyio>=4.6",
+    "httpx>=0.27",
+    "testcontainers[postgres]>=4.8",
+    "ruff>=0.15",
+    "psycopg[binary]>=3.2",
+    "pytest-xdist>=3.8.0",
+    # OIDC auth deps available to the test suite (test_oidc.py mints synthetic RS256
+    # JWTs); production gets the same via the `oidc` extra.
+    "pyjwt[crypto]>=2.10",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/geoid"]
+
+[tool.uv]
+package = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-ra"
+markers = [
+    "unit: pure unit tests, no external services",
+    "integration: requires an ephemeral PostGIS container (Docker)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
+ignore = ["B008"]  # FastAPI Depends(...) in defaults is idiomatic
+
+[tool.ruff.lint.per-file-ignores]
+# Tests carry inline GeoJSON / URL literals where wrapping hurts readability.
+"tests/**" = ["E501"]
+# Migrations embed long SQL strings (trigger bodies, RAISE messages).
+"migrations/**" = ["E501"]
+# Dev scripts have aligned print/format lines where wrapping hurts readability.
+"scripts/**" = ["E501"]
+
+[tool.coverage.run]
+source = ["geoid"]
+# Line coverage (the 80% target). Branch coverage is disabled so the sys.monitoring
+# core (COVERAGE_CORE=sysmon) can be used — it traces async ASGI handlers that the
+# legacy C tracer misses, but on this coverage version it can't measure branches.
+branch = false

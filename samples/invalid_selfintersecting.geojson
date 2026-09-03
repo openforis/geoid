@@ -1,0 +1,10 @@
+{
+  "type": "Feature",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[[0, 0], [2, 2], [2, 0], [0, 2], [0, 0]]]
+  },
+  "properties": {
+    "note": "Self-intersecting bow-tie — must be rejected with HTTP 422 + ST_IsValidReason (reject-don't-repair)."
+  }
+}
