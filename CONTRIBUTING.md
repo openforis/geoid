@@ -71,7 +71,7 @@ uv run --with pre-commit pre-commit run --all-files
 ```
 
 The ruff config lives in `pyproject.toml` (`[tool.ruff]`); pre-commit reads it rather than
-duplicating it. CI does **not** re-run `ruff check` — pre-commit owns lint.
+duplicating it. pre-commit owns lint; nothing else re-runs `ruff check`.
 
 ## Migrations
 
@@ -82,7 +82,11 @@ uv run alembic revision -m "describe the change"   # name the file NNNN_snake_ca
 uv run alembic upgrade head                         # = uv run geoid migrate
 ```
 
-Single-head is enforced in CI. **Never edit an already-applied migration — ship a new one.**
+Keep exactly one head (`uv run alembic heads`, part of the PR checks below). **Never edit an
+already-applied migration — ship a new one.**
+
+Name constraints `uq_`/`ck_`/`fk_` and indexes `_idx`/`_gix`. Do not rename an applied
+constraint: `api/errors.py` switches on constraint names, so a rename changes HTTP responses.
 
 ## Checks a PR must pass
 

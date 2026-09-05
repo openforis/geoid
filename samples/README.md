@@ -14,14 +14,12 @@ Dummy EUDR/Whisp-style plots for local testing, driven by `scripts/seed_samples.
 # 1. bring the stack up (use GEOID_DB_PORT if 5432 is taken locally)
 GEOID_DB_PORT=5433 docker compose up -d --build
 
-# 2. seed + demonstrate mint / dedup / validation / OGC read / bulk export
+# 2. seed + demonstrate mint / idempotent re-mint / validation / resolve
 uv run python scripts/seed_samples.py
 ```
 
-Then explore `http://localhost:8000/docs`, or:
+Then explore `http://localhost:8000/docs`, or resolve one of the geoids the script printed:
 
 ```bash
-curl -s 'http://localhost:8000/collections/public/items?limit=100' | jq '.numberMatched'
-curl -s 'http://localhost:8000/collections/public/bulk' -o public.geojson   # copyable open data
-ogrinfo "OAPIF:http://localhost:8000" public                                # a real ogr client
+curl -s "http://localhost:8000/<geoid>" | jq '.properties'
 ```

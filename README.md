@@ -117,7 +117,7 @@ the result is serialised and hashed with SHA-256; the first 128 bits are stamped
 - **Engine-independent.** The canonical form uses integer arithmetic only, so it is identical on
   every PostGIS build.
 - **Implemented in SQL, mirrored in Python.** The database computes the geoid; the pure-Python
-  reference in `src/geoid/domain/geometry_identity.py` is pinned to it by golden vectors in CI.
+  reference in `src/geoid/domain/geometry_identity.py` is pinned to it by golden vectors in the test suite.
 - **Pinned example.** The unit square `(0 0, 1 0, 1 1, 0 1)` always mints
   `169dc6c3-af8c-80d4-a0b3-436d1bbbde86`.
 
