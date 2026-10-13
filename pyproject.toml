@@ -1,6 +1,6 @@
 [project]
 name = "geoid"
-version = "0.11.0"
+version = "0.11.1"
 description = "GeoID — global federated registry minting immutable, secure identifiers for geospatial places (OGC API Features over PostGIS)."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -32,7 +32,7 @@ dependencies = [
 # Imported lazily inside auth/oidc.py + deps.py so an image built WITHOUT this extra
 # still imports cleanly, but Keycloak is the ONLY auth path — REQUIRED for any
 # authenticated deployment (Dockerfile `uv sync --extra oidc`).
-oidc = ["pyjwt[crypto]>=2.10"]
+oidc = ["pyjwt[crypto]>=2.15"]
 # Operational tooling baked into the deployed image: scripts/dedup_vectors.py runs
 # as a post-deploy Cloud Run job (the golden-vector identity canary) and needs the
 # sync psycopg driver, which is otherwise dev-only. Installed via the Dockerfile's
@@ -55,7 +55,7 @@ dev = [
     "pytest-xdist>=3.8.0",
     # OIDC auth deps available to the test suite (test_oidc.py mints synthetic RS256
     # JWTs); production gets the same via the `oidc` extra.
-    "pyjwt[crypto]>=2.10",
+    "pyjwt[crypto]>=2.15",
 ]
 
 [build-system]

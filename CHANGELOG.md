@@ -4,6 +4,15 @@ All notable changes to GeoID are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.1] - 2026-10-13
+
+### Security
+- PyJWT upgraded to 2.15.1, and the minimum supported version raised to 2.15.
+  This fixes the open PyJWT advisories, including the HMAC/asymmetric
+  key-confusion guard bypasses, unbounded recursion on deeply nested tokens,
+  and JWKS redirect following. Bearer tokens remain pinned to RS256.
+- urllib3 upgraded to 2.8.0 (test dependency) and Mako to 1.4.3 (via Alembic).
+
 ## [0.11.0] - 2026-10-13
 
 ### Added
