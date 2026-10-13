@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import uuid
 from collections.abc import Iterator
 from datetime import datetime
 from typing import Any, Literal
@@ -14,6 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from geoid.domain.geometry_format import decode_geometry
 from geoid.domain.geometry_identity import DegenerateGeometryError, canonical_bytes
 from geoid.domain.identifiers import derive_identifiers
+from geoid.schemas.ogc import FeatureModel
 
 # Accepted geometry types. Lines and GeometryCollection are NOT accepted and are
 # rejected at the schema boundary (422).
@@ -308,3 +310,28 @@ class BulkReport(BaseModel):
     summary: BulkSummary
     accepted: list[BulkAccepted] = Field(default_factory=list)
     rejected: list[BulkRejected] = Field(default_factory=list)
+
+
+class ResolveRequest(BaseModel):
+    """The geoids to resolve in one POST /bulk_resolve call.
+
+    One malformed id or an empty list rejects the whole request (422): the ids are
+    the caller's input, not data the service can partially accept.
+    """
+
+    geoids: list[uuid.UUID] = Field(min_length=1)
+
+
+class ResolveResponse(BaseModel):
+    """A GeoJSON FeatureCollection of the resolved geoids — always 200, partial result.
+
+    ``features`` holds each found geoid once, in first-request order, with the same
+    body ``GET /{geoid}`` returns. ``not_found`` (an RFC 7946 §6.1 foreign member)
+    lists the unknown ids in the same order.
+    """
+
+    type: Literal["FeatureCollection"] = "FeatureCollection"
+    features: list[FeatureModel] = Field(default_factory=list)
+    not_found: list[str] = Field(
+        default_factory=list, description="Requested geoids that resolve to no feature."
+    )

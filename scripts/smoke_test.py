@@ -2,7 +2,8 @@
 """Post-deploy smoke test — verify a deployed GeoID instance end-to-end.
 
 Read-only by default, so it is safe against production (places are append-only;
-nothing is minted unless asked). ``--mint`` adds a three-operation write probe
+nothing is minted unless asked; the bulk-resolve check only reads a random,
+non-existent geoid). ``--mint`` adds a three-operation write probe
 that submits ONE fixed sentinel through the public and collection-scoped single
 routes, then through bulk. The mint is idempotent: both single submissions answer
 **201 with byte-identical bodies and matching Location headers**, and bulk accepts
@@ -33,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import uuid
 from collections.abc import Callable
 from urllib.parse import urlsplit
 
@@ -141,10 +143,46 @@ def check_collection_desc(client: httpx.Client) -> str:
     return f"id={body['id']!r}"
 
 
+def _post_resolve(client: httpx.Client, geoids: list[str]) -> httpx.Response:
+    return record(
+        "POST /bulk_resolve", client.post(f"{BASE}/bulk_resolve", json={"geoids": geoids})
+    )
+
+
+def _validate_resolve(resp: httpx.Response, found: list[str], missing: list[str]) -> None:
+    """POST /bulk_resolve answered 200 GeoJSON with exactly ``found`` as features, in order,
+    and exactly ``missing`` as not_found."""
+    _ensure(resp.status_code == 200, f"POST /bulk_resolve → {resp.status_code}: {resp.text[:200]}")
+    ctype = resp.headers.get("content-type", "")
+    _ensure(
+        ctype.startswith("application/geo+json"),
+        f"POST /bulk_resolve content-type {ctype!r}, expected 'application/geo+json'",
+    )
+    body = resp.json()
+    _ensure(
+        body.get("type") == "FeatureCollection",
+        f"POST /bulk_resolve type {body.get('type')!r}, expected 'FeatureCollection'",
+    )
+    ids = [feature.get("id") for feature in body.get("features") or []]
+    _ensure(ids == found, f"POST /bulk_resolve features {ids!r}, expected {found!r}")
+    _ensure(
+        body.get("not_found") == missing,
+        f"POST /bulk_resolve not_found {body.get('not_found')!r}, expected {missing!r}",
+    )
+
+
+def check_bulk_resolve_miss(client: httpx.Client) -> str:
+    # A random UUIDv4 can never be a geoid (geoids are UUIDv8), so this reads nothing.
+    missing = str(uuid.uuid4())
+    _validate_resolve(_post_resolve(client, [missing]), [], [missing])
+    return "unknown geoid → 200, empty features, listed in not_found"
+
+
 # Public read checks (no token, safe against production).
 READ_CHECKS: tuple[tuple[str, Callable[[httpx.Client], str]], ...] = (
     ("landing links", check_landing),
     ("conformance", check_conformance),
+    ("bulk resolve (miss)", check_bulk_resolve_miss),
 )
 
 # Admin-gated read checks — only run when GEOID_BEARER_TOKEN is set.
@@ -289,6 +327,12 @@ def run_mint_probe(client: httpx.Client) -> list[bool]:
         )
         return f"resolved; uri on {uri_netloc!r}"
 
+    def probe_resolve_bulk() -> str:
+        missing = str(uuid.uuid4())
+        resp = _post_resolve(client, [minted["geoid"], missing])
+        _validate_resolve(resp, [minted["geoid"]], [missing])
+        return "sentinel in features, unknown geoid in not_found"
+
     def probe_resolve_external() -> str:
         # The mint response names no collection, so this probes the collection
         # this run targeted. Dedup is global: if the sentinel geometry was first
@@ -317,6 +361,7 @@ def run_mint_probe(client: httpx.Client) -> list[bool]:
         return results
     return results + [
         _run_check("resolve by geoid", probe_resolve_geoid),
+        _run_check("bulk resolve (hit)", probe_resolve_bulk),
         _run_check("resolve by external_id", probe_resolve_external),
     ]
 

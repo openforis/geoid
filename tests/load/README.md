@@ -32,6 +32,7 @@ idempotent-mint contract and were removed 2026-07-17 — don't resurrect them; e
 No schedule. Re-run on these triggers:
 
 - the bulk-write contract or `GEOID_BULK_MAX_FEATURES` changes
+- the bulk-resolve contract or `GEOID_BULK_RESOLVE_MAX_GEOIDS` changes
 - Cloud Run instance shape / concurrency or Cloud SQL tier is resized
 - before onboarding the real ~40k-feature client load
 - a DB-tier or scaling decision needs fresh numbers (see `local-scripts/docs/SCALING.md`)

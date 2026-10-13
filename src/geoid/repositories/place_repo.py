@@ -234,6 +234,19 @@ async def get_by_geoid(session: AsyncSession, geoid: uuid.UUID) -> dict[str, Any
     return dict(row) if row else None
 
 
+async def get_by_geoids(session: AsyncSession, geoids: list[uuid.UUID]) -> list[dict[str, Any]]:
+    """Every existing row among ``geoids`` in ONE query, in no particular order."""
+    stmt = text(
+        f"""
+        SELECT {_READ_COLUMNS}
+        FROM place p JOIN collection c ON c.id = p.collection_id
+        WHERE p.id = ANY(:geoids)
+        """
+    )
+    rows = (await session.execute(stmt, {"geoids": geoids})).mappings().all()
+    return [dict(row) for row in rows]
+
+
 async def get_by_external_id(
     session: AsyncSession, collection_id: uuid.UUID, external_id: str
 ) -> dict[str, Any] | None:

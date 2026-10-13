@@ -114,12 +114,28 @@ class BulkLimitExceededError(GeoidServiceError):
     rejected with the count and the configured cap.
     """
 
-    def __init__(self, count: int, limit: int) -> None:
+    def __init__(self, count: int, limit: int, message: str | None = None) -> None:
         self.count = count
         self.limit = limit
         super().__init__(
-            f"bulk ingest rejected: {count} features exceeds the limit of {limit} "
+            message
+            or f"bulk ingest rejected: {count} features exceeds the limit of {limit} "
             "(GEOID_BULK_MAX_FEATURES)"
+        )
+
+
+class ResolveLimitExceededError(BulkLimitExceededError):
+    """A POST /bulk_resolve body exceeds ``GEOID_BULK_RESOLVE_MAX_GEOIDS`` (413).
+
+    Subclassed so the one 413 handler serves both bulk routes with the same body.
+    """
+
+    def __init__(self, count: int, limit: int) -> None:
+        super().__init__(
+            count,
+            limit,
+            f"bulk resolve rejected: {count} geoids exceeds the limit of {limit} "
+            "(GEOID_BULK_RESOLVE_MAX_GEOIDS)",
         )
 
 

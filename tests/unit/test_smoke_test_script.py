@@ -116,3 +116,44 @@ def test_bulk_mint_validation_requires_one_accepted_matching_geoid():
     )
     with pytest.raises(smoke_test.CheckFailed, match="bulk sentinel geoid diverged"):
         smoke_test._validate_bulk_mint(wrong_geoid, "abc")
+
+
+def _resolve_response(
+    body: bytes, *, status: int = 200, content_type: str = "application/geo+json"
+) -> httpx.Response:
+    return httpx.Response(
+        status,
+        content=body,
+        headers={"content-type": content_type},
+        request=httpx.Request("POST", "https://example.test/bulk_resolve"),
+    )
+
+
+_HIT = b'{"type":"FeatureCollection","features":[{"id":"g1"}],"not_found":["m1"]}'
+
+
+def test_resolve_validation_accepts_exact_features_and_not_found():
+    smoke_test._validate_resolve(_resolve_response(_HIT), ["g1"], ["m1"])
+
+
+@pytest.mark.parametrize(
+    "response,found,missing",
+    [
+        (_resolve_response(_HIT, status=500), ["g1"], ["m1"]),
+        (_resolve_response(_HIT, content_type="application/json"), ["g1"], ["m1"]),
+        (_resolve_response(_HIT), [], ["m1"]),
+        (_resolve_response(_HIT), ["g1"], []),
+        (
+            _resolve_response(b'{"type":"Feature","features":[{"id":"g1"}],"not_found":["m1"]}'),
+            ["g1"],
+            ["m1"],
+        ),
+    ],
+)
+def test_resolve_validation_rejects_any_divergence(response, found, missing):
+    with pytest.raises(smoke_test.CheckFailed):
+        smoke_test._validate_resolve(response, found, missing)
+
+
+def test_bulk_resolve_miss_runs_in_the_read_only_checks():
+    assert ("bulk resolve (miss)", smoke_test.check_bulk_resolve_miss) in smoke_test.READ_CHECKS

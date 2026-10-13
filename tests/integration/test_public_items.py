@@ -1,7 +1,7 @@
-"""The three public operations, end to end — the client-facing contract.
+"""The four public operations, end to end — the client-facing contract.
 
-``POST /items``, ``POST /items/bulk`` and ``GET /{geoid}`` are the only operations
-in the published schema (client meeting 2026-07-25). They ignore authentication:
+``POST /items``, ``POST /items/bulk``, ``GET /{geoid}`` and ``POST /bulk_resolve`` are
+the only operations in the published schema (ADR-009, ADR-010). They ignore authentication:
 valid, invalid, expired, and absent credentials have one wire contract, and public
 mints record anonymous provenance. Each write operation is ONE handler served at
 two paths — the public one (hard-wired to the reserved public collection) and the
@@ -204,7 +204,7 @@ async def test_anonymous_writes_need_no_credential(client):
     assert (await client.post("/items", json=_square(20, 20))).status_code == 201
 
 
-async def test_the_three_public_operations_ignore_all_credentials(oidc_client, make_token, bearer):
+async def test_the_four_public_operations_ignore_all_credentials(oidc_client, make_token, bearer):
     valid = bearer(make_token(sub="kc-public"))
     expired = bearer(make_token(sub="kc-expired", exp_delta=-3600))
     malformed = bearer("not.a.jwt")
@@ -248,6 +248,15 @@ async def test_the_three_public_operations_ignore_all_credentials(oidc_client, m
     )
     assert set(resolutions[0].json()["properties"]) == {"geoid", "uri"}
 
+    resolve_body = {"geoids": [singles[0].json()["geoid"]]}
+    bulk_resolutions = [
+        await oidc_client.post("/bulk_resolve", json=resolve_body, headers=headers)
+        for headers in credential_variants
+    ]
+    assert {response.status_code for response in bulk_resolutions} == {200}
+    assert all(response.content == bulk_resolutions[0].content for response in bulk_resolutions)
+    assert bulk_resolutions[0].json()["features"] == [resolutions[0].json()]
+
 
 @pytest.mark.parametrize(
     "path,body",
@@ -290,7 +299,7 @@ async def test_public_collection_mints_record_anonymous_provenance(
 
 async def test_hidden_routes_stay_live(client, admin_headers):
     schema_paths = set((await client.get("/openapi.json")).json()["paths"])
-    assert schema_paths == {"/items", "/items/bulk", "/{geoid}"}
+    assert schema_paths == {"/items", "/items/bulk", "/{geoid}", "/bulk_resolve"}
 
     assert (await client.post("/collections/public/items", json=_square(21, 21))).status_code == 201
     assert (await client.get("/health")).status_code == 200

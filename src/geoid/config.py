@@ -112,6 +112,18 @@ class Settings(DatabaseSettings):
         ),
     )
 
+    # --- Bulk read (POST /bulk_resolve) -------------------------------------------
+    bulk_resolve_max_geoids: int = Field(
+        default=1_000,
+        ge=1,
+        description=(
+            "Hard cap on the number of geoids accepted in one POST /bulk_resolve body. "
+            "Exceeding it rejects the whole request (413) before any lookup. "
+            "Separate from the write cap: a read skips hashing, dedup and inserts, "
+            "so it certifies at its own size."
+        ),
+    )
+
     # --- Resolver HTTP-cache trial ------------------------------------------
     resolver_cache_max_age: int = Field(
         default=0,

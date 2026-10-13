@@ -6,6 +6,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI
+from fastapi.routing import APIRoute
 from sqlalchemy.exc import InterfaceError, OperationalError
 
 from geoid import __version__
@@ -26,8 +27,10 @@ always returns the same geoid — and tracks provenance.
 * **Bulk mint** — `POST /items/bulk` (a GeoJSON FeatureCollection, processed
   in-request, returns a per-feature report)
 * **Resolve** — `GET /{geoid}` (GeoJSON, or WKT with `?format=wkt`)
+* **Bulk resolve** — `POST /bulk_resolve` (a list of geoids → a GeoJSON FeatureCollection
+  plus the `not_found` ids)
 
-These three public operations ignore authentication until further notice.
+These four public operations ignore authentication until further notice.
 """
 
 
@@ -115,6 +118,27 @@ def _swagger_oauth2(settings: Settings) -> tuple[list, dict | None]:
     return [Depends(oauth2_scheme)], init_oauth
 
 
+# Operations that ignore credentials. The SSO scheme is app-wide only so Swagger
+# renders Authorize, which would otherwise put a lock on these too.
+_CREDENTIAL_FREE_PATHS = frozenset(
+    {"/items", "/items/bulk", "/{geoid}", "/bulk_resolve", "/health"}
+)
+
+
+def _unlock_credential_free_operations(app: FastAPI) -> None:
+    generate = app.openapi
+
+    def openapi() -> dict:
+        if app.openapi_schema is None:
+            paths = generate()["paths"]
+            for path in _CREDENTIAL_FREE_PATHS & paths.keys():
+                for operation in paths[path].values():
+                    operation.pop("security", None)
+        return app.openapi_schema
+
+    app.openapi = openapi
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
     oauth2_dependencies, swagger_init_oauth = _swagger_oauth2(settings)
@@ -137,13 +161,22 @@ def create_app() -> FastAPI:
     # router is mounted BEFORE places so its literal /collections/... routes are
     # matched ahead of the root /{geoid} catch-all; /health is a literal path —
     # no OGC collision. Everything but `places` is hidden from /docs: the public
-    # surface is the three registry operations the client fixed. Hiding is
-    # cosmetic — every route stays live and keeps its existing auth gate.
+    # surface is the four registry operations. Hiding is
+    # cosmetic — every route stays live and keeps its existing auth gate — so the
+    # review env lists everything but the OGC reads, which were hidden before the
+    # public surface was narrowed.
     app.include_router(health.router, include_in_schema=False)
     app.include_router(ogc.router, include_in_schema=False)
     app.include_router(grants.router, include_in_schema=False)
     app.include_router(places.router)
     app.include_router(manage.router, include_in_schema=False)
+    if settings.environment == "review":
+        ogc_endpoints = {route.endpoint for route in ogc.router.routes}
+        for route in app.routes:
+            if isinstance(route, APIRoute) and route.endpoint not in ogc_endpoints:
+                route.include_in_schema = True
+
+    _unlock_credential_free_operations(app)
 
     app.state.settings = settings
     return app

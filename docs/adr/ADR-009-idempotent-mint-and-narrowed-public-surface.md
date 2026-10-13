@@ -11,6 +11,8 @@
   `main.create_app` (router-level hiding), `api.places._target_principal` (public-target
   identity suppression), and the authentication-free `api.places.resolve_geoid`.
 - **Not changed:** managed-collection authorization, the identity recipe, the schema. No migration.
+- **Extended by:** [ADR-010](ADR-010-bulk-resolve.md), which adds a fourth public operation,
+  `POST /bulk_resolve`, under the same authentication-invariance.
 
 ## Context
 
@@ -90,9 +92,13 @@ Hiding uses static `include_in_schema=False` — router-level for `health`, `ogc
 `manage`, at the scoped include for the two `places` write operations, per-route for `/me/geoids`.
 Not a second router object for `places` as a whole, because its registration order is a load-bearing
 invariant (the root `/{geoid}` catch-all must come last), pinned by
-`tests/unit/test_route_structure.py`. Consequence of the shared handlers: were the scoped routes
-ever unhidden, their `{collection_id}` would appear in the schema undocumented — it is absent from
-the signatures by design.
+`tests/unit/test_route_structure.py`. Consequence of the shared handlers: `{collection_id}` is
+absent from the signatures by design, so the scoped include declares it through a no-op path
+dependency and the parameter is documented wherever the scoped routes are listed.
+
+The review environment (`GEOID_ENVIRONMENT=review`) is the one exception: `create_app` lists every
+route there except the OGC reads, restoring the surface published before this narrowing (plus the
+public operations) for pre-production use, while production publishes only the public operations.
 
 **Hiding is cosmetic, never an authorization control.** Every hidden route stays live and keeps its
 existing gate. That this is true is proved on every deploy: `scripts/smoke_test.py` exercises `/`,

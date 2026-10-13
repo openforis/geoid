@@ -29,6 +29,7 @@ Developed by FAO under the [Open Foris Initiative](https://openforis.org).
 | Mint | `POST /items` | `201` + `{geoid, uri, external_id}`, `Location` header |
 | Bulk mint | `POST /items/bulk` | `200` + per-feature report |
 | Resolve | `GET /{geoid}` | GeoJSON Feature, or WKT with `?format=wkt` |
+| Bulk resolve | `POST /bulk_resolve` | `200` + GeoJSON FeatureCollection and `not_found` |
 
 Interactive docs live at `/docs` on a running instance. The examples below assume
 `http://localhost:8000` (see [Quickstart](#quickstart)).
@@ -97,6 +98,27 @@ curl -s http://localhost:8000/items/bulk -H 'Content-Type: application/json' -d 
 }
 ```
 
+### Bulk resolve
+
+Submit a list of geoids and get one GeoJSON FeatureCollection back. Each found geoid appears once,
+in the order first requested, with the same body `GET /{geoid}` returns; ids that resolve to
+nothing are listed in `not_found`. The response is always `200`. A malformed id or an empty list
+is refused with `422`. The FAO-hosted instance accepts up to 4,000 geoids per request; a
+self-hosted instance defaults to 1,000 (`GEOID_BULK_RESOLVE_MAX_GEOIDS`), and larger requests are
+refused with `413`.
+
+```bash
+curl -s http://localhost:8000/bulk_resolve -H 'Content-Type: application/json' -d '{
+  "geoids": ["e4b1a65e-a0cf-8738-a6c2-3c3b4250b0af", "00000000-0000-8000-8000-000000000000"]
+}'
+```
+
+```json
+{"type": "FeatureCollection",
+ "features": [{"type": "Feature", "id": "e4b1a65e-a0cf-8738-a6c2-3c3b4250b0af", "…": "…"}],
+ "not_found": ["00000000-0000-8000-8000-000000000000"]}
+```
+
 ### What is accepted
 
 - Geometry types `Point`, `MultiPoint`, `Polygon`, `MultiPolygon`; lines and collections are rejected.
@@ -122,7 +144,8 @@ the result is serialised and hashed with SHA-256; the first 128 bits are stamped
   `169dc6c3-af8c-80d4-a0b3-436d1bbbde86`.
 
 Design records: [ADR-004](docs/adr/ADR-004-deterministic-geoid.md),
-[ADR-007](docs/adr/ADR-007-identity-recipe-v2.md), [ADR-009](docs/adr/ADR-009-idempotent-mint-and-narrowed-public-surface.md).
+[ADR-007](docs/adr/ADR-007-identity-recipe-v2.md), [ADR-009](docs/adr/ADR-009-idempotent-mint-and-narrowed-public-surface.md),
+[ADR-010](docs/adr/ADR-010-bulk-resolve.md).
 
 ## Quickstart
 
@@ -161,10 +184,11 @@ every one. The ones that matter for a deployment:
 | `GEOID_DATABASE_URL` | asyncpg SQLAlchemy URL of the PostGIS database |
 | `GEOID_BASE_URL` | Public origin used in minted URIs and links |
 | `GEOID_ROOT_PATH` | Sub-path the API is mounted under behind a proxy (e.g. `/geoid`) |
-| `GEOID_ENVIRONMENT` | `development` (default), `review` or `production` |
+| `GEOID_ENVIRONMENT` | `development` (default), `review` or `production`; `review` also lists the collection, grant, external-id and admin routes in `/docs` |
 | `GEOID_PUBLIC_COLLECTION` | Slug of the collection that receives public mints |
 | `GEOID_INSTANCE_ID` | This instance's id, recorded in provenance |
 | `GEOID_BULK_MAX_FEATURES` | Cap per bulk request (default 1000); over it → `413` |
+| `GEOID_BULK_RESOLVE_MAX_GEOIDS` | Cap on geoids per `POST /bulk_resolve` (default 1000); over it → `413` |
 | `GEOID_OIDC_ISSUER`, `GEOID_OIDC_JWKS_URL` | OIDC provider; required outside `development` |
 
 ## Deployment
@@ -175,7 +199,9 @@ the mounted prefix and have the proxy strip it before forwarding.
 
 Sizing: bulk minting is synchronous, capped by `GEOID_BULK_MAX_FEATURES` (default 1,000). Raise it
 together with the server request timeout and memory; the FAO-hosted instance runs 4,000 with a
-600 s request timeout. Resolves are single indexed lookups.
+600 s request timeout. A resolve, single or bulk, is one indexed query; a bulk resolve's response
+grows with the geometries it returns, so keep `GEOID_BULK_RESOLVE_MAX_GEOIDS` within the response
+size your server or proxy allows.
 
 ## Project layout
 

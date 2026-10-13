@@ -4,6 +4,27 @@ All notable changes to GeoID are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-10-13
+
+### Added
+- **Bulk resolve: `POST /bulk_resolve`.** Send `{"geoids": [...]}` and receive a
+  GeoJSON FeatureCollection of the registered geoids, in request order and
+  de-duplicated, plus a `not_found` list for the rest. Like `GET /{geoid}`, it is
+  public and authentication-invariant. Malformed or empty input returns `422`.
+  More geoids than the cap returns `413`, and any other request returns `200`.
+- `GEOID_BULK_RESOLVE_MAX_GEOIDS` sets the cap on geoids per request: 1,000 by
+  default and 4,000 in review and production.
+
+### Fixed
+- The API documentation page no longer shows a lock icon on the public
+  operations, which ignore credentials.
+
+### Changed
+- Dependency updates: `cryptography` 50.0.0, `anyio` 4.15.1.
+- CI workflows restrict `GITHUB_TOKEN` to `contents: read`.
+- README and CONTRIBUTING are ready for the public repository, with corrected
+  sample walkthrough.
+
 ## [0.10.2] - 2026-07-27
 
 ### Changed
